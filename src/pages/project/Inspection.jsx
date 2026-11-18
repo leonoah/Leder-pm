@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom'
 import { Check, X, Minus, ClipboardCheck, Printer, Share2, ListTodo } from 'lucide-react'
 import { useCol, useDoc, add, patch, postMessage } from '../../lib/db'
 import { DEF_ST, SEV, SEG_ST, ROLE, fmtDate, today, addDays, isOpenDefect, pickTemplate } from '../../lib/util'
-import { Badge, Btn, Card, Empty, Field, ImgPick, Input, Modal, Select, Tabs, Textarea, Thumbs, useMe, toast } from '../../ui'
+import { Logo, Badge, Btn, Card, Empty, Field, ImgPick, Input, Modal, Select, Tabs, Textarea, Thumbs, useMe, toast } from '../../ui'
 
 const RES = { ok: ['תקין', 'text-emerald-700'], defect: ['ליקוי', 'text-rose-700'], na: ['לא רלוונטי', 'text-slate-400'] }
 
@@ -17,7 +17,7 @@ export function VisitReport({ visit }) {
   return (
     <div className="print-area space-y-4 text-sm">
       <div className="border-b-2 border-sky-700 pb-3">
-        <div className="text-xs text-slate-500">אדם לדר – ניהול ופיקוח פרויקטים</div>
+        <Logo className="mb-2 h-9" />
         <h2 className="text-lg font-bold">דוח סיור פיקוח – {fmtDate(visit.date)}</h2>
         <div className="mt-1 text-slate-600">{p?.name} · {client?.name}</div>
       </div>

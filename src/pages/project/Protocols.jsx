@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Plus, Send, Printer, Trash2, ChevronRight, Copy, X, Lock } from 'lucide-react'
 import { useCol, useDoc, add, patch, del, postMessage } from '../../lib/db'
 import { ROLE, fmtDate, today, addDays } from '../../lib/util'
-import { Badge, Btn, Card, Empty, Modal, Select, useMe, toast } from '../../ui'
+import { Logo, Badge, Btn, Card, Empty, Modal, Select, useMe, toast } from '../../ui'
 
 const KINDS = {
   site: ['ישיבת אתר', ['סטטוס ביצוע', 'ליקויים פתוחים', 'בטיחות', 'לוח זמנים']],
@@ -17,7 +17,7 @@ export function ProtocolView({ r }) {
   return (
     <div className="print-area space-y-4 text-sm">
       <div className="border-b-2 border-sky-700 pb-3">
-        <div className="text-xs text-slate-500">אדם לדר – ניהול ופיקוח פרויקטים</div>
+        <Logo className="mb-2 h-9" />
         <h2 className="text-lg font-bold">{r.title}</h2>
         <div className="mt-1 text-slate-600">{p?.name} · {fmtDate(r.date)} · {r.place}</div>
       </div>
@@ -78,7 +78,8 @@ function Editor({ p, r, onBack }) {
       </div>
       <Card className="space-y-5 p-5 sm:p-8">
         <div className="border-b-2 border-sky-700 pb-3">
-          <div className="text-xs text-slate-500">אדם לדר – ניהול ופיקוח פרויקטים · {p.name}</div>
+          <Logo className="mb-2 h-9" />
+          <div className="text-xs text-slate-500">{p.name}</div>
           <input className="doc-input text-xl font-bold" value={d.title} onChange={(e) => up({ title: e.target.value })} />
           <div className="mt-1 flex flex-wrap gap-2 text-sm">
             <input type="date" className="doc-input !w-40" value={d.date} onChange={(e) => up({ date: e.target.value })} />

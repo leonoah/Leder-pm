@@ -1,6 +1,9 @@
 import { createContext, useContext, useEffect, useRef, useState } from 'react'
 import { Camera, X } from 'lucide-react'
 import { compressImage, TONE } from './lib/util'
+import logoUrl from './assets/logo.svg'
+
+export const Logo = ({ className = 'h-8' }) => <img src={logoUrl} alt="אדם לדר – ניהול ופיקוח פרויקטים" className={`w-auto ${className}`} />
 
 export const MeCtx = createContext(null)
 export const useMe = () => useContext(MeCtx)

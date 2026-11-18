@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { Droplets, LogOut } from 'lucide-react'
+import { LogOut } from 'lucide-react'
 import { useDoc } from '../lib/db'
-import { Btn, Card, Empty, Field, Input, Select } from '../ui'
+import { Btn, Card, Empty, Field, Input, Logo, Select } from '../ui'
 import { ChannelView } from './project/Channel'
 
 export default function ChannelPublic() {
@@ -23,7 +23,8 @@ export default function ChannelPublic() {
   if (!viewer) return (
     <div className="flex min-h-full items-center justify-center bg-slate-100 p-4">
       <Card className="w-full max-w-sm space-y-3 p-6">
-        <div className="flex items-center gap-2 text-sky-800"><Droplets size={22} /><b>ערוץ פרויקט</b></div>
+        <Logo className="h-11" />
+        <div className="text-xs font-semibold text-sky-800">ערוץ פרויקט</div>
         <h1 className="text-lg font-bold leading-snug">{p.name}</h1>
         <p className="text-sm text-slate-600">אדם לדר – ניהול ופיקוח פרויקטים. הזינו את קוד הגישה שקיבלתם כדי להצטרף לערוץ.</p>
         <Field label="שם מלא"><Input value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} autoFocus /></Field>
@@ -37,7 +38,7 @@ export default function ChannelPublic() {
   return (
     <div className="mx-auto min-h-full max-w-3xl p-3 sm:p-5">
       <div className="mb-3 flex items-center justify-between gap-2">
-        <div className="min-w-0"><div className="flex items-center gap-1.5 text-xs text-sky-800"><Droplets size={14} />ערוץ פרויקט · לדר ניהול ופיקוח</div><h1 className="truncate font-bold">{p.name}</h1></div>
+        <div className="min-w-0"><Logo className="h-7" /><h1 className="mt-1 truncate font-bold">{p.name}</h1></div>
         <div className="flex shrink-0 items-center gap-2 text-xs text-slate-500"><span>{viewer.name} · {viewer.role}</span><button onClick={() => { sessionStorage.removeItem(key); setViewer(null) }} aria-label="יציאה"><LogOut size={15} /></button></div>
       </div>
       <ChannelView p={p} viewer={viewer} />

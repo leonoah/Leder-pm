@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
 import { HashRouter, Routes, Route, NavLink, Outlet, Navigate } from 'react-router-dom'
-import { LayoutDashboard, FolderKanban, CheckSquare, Users, FileStack, Wallet, Droplets, UserCog, ShieldCheck } from 'lucide-react'
+import { LayoutDashboard, FolderKanban, CheckSquare, Users, FileStack, Wallet, UserCog, ShieldCheck } from 'lucide-react'
 import { useCol, useDbState, useDoc, setActor, createBackup, deleteBackup } from './lib/db'
 import { ROLE } from './lib/util'
-import { MeCtx, useMe, Toaster } from './ui'
+import { MeCtx, useMe, Toaster, Logo } from './ui'
 import Dashboard from './pages/Dashboard'
 import Projects from './pages/Projects'
 import Project from './pages/Project'
@@ -36,10 +36,7 @@ function Layout() {
   return (
     <div className="flex h-full">
       <aside className="hidden w-56 shrink-0 flex-col bg-slate-800 p-3 md:flex no-print">
-        <div className="mb-5 flex items-center gap-2 px-2 pt-2 text-white">
-          <Droplets className="text-sky-400" size={22} />
-          <div><div className="font-bold leading-tight">לדר פרויקטים</div><div className="text-[11px] text-slate-400">ניהול ופיקוח · Demo</div></div>
-        </div>
+        <div className="mb-4 rounded-xl bg-white px-3 py-3"><Logo className="h-10 mx-auto" /><div className="mt-1.5 text-center text-[11px] text-slate-500">מערכת ניהול פרויקטים · Demo</div></div>
         <nav className="space-y-1">{nav.map(([to, label, Icon]) => <NavLink key={to} to={to} end={to === '/'} className={link}><Icon size={17} />{label}</NavLink>)}</nav>
         <div className="mt-auto space-y-2 text-[11px] text-slate-400">
           <div className="flex items-center gap-1.5 px-2"><span className={`h-2 w-2 rounded-full ${db.backend === 'firebase' ? 'bg-emerald-400' : 'bg-amber-400'}`} />{db.backend === 'firebase' ? 'מחובר ל-Firestore' : 'נתונים מקומיים בדפדפן'}</div>
@@ -47,7 +44,7 @@ function Layout() {
       </aside>
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="flex items-center justify-between gap-3 border-b border-slate-200 bg-white px-4 py-2.5 no-print">
-          <div className="flex items-center gap-2 font-bold md:hidden"><Droplets className="text-sky-600" size={20} />לדר פרויקטים</div>
+          <div className="md:hidden"><Logo className="h-8" /></div>
           <div className="hidden text-xs text-slate-500 md:block">נתוני הדגמה – שמות הפרויקטים אמיתיים, כל השאר בדוי</div>
           <label className="flex items-center gap-2 text-xs text-slate-500">
             <span className="hidden sm:inline">מציג כ:</span>
