@@ -2,14 +2,14 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Plus, Trash2 } from 'lucide-react'
 import { useCol, add, patch, del } from '../lib/db'
-import { TASK_ST, PRIO, fmtDate, isLate, addDays } from '../lib/util'
+import { TASK_ST, PRIO, ROLE, fmtDate, isLate, addDays } from '../lib/util'
 import { Badge, Btn, Card, Empty, Field, Input, Modal, Select, Tabs, Textarea, useMe, toast } from '../ui'
 
-export function TaskModal({ task, projectId, onClose }) {
+export function TaskModal({ task, projectId, assigneeId, onClose }) {
   const { me } = useMe()
   const users = useCol('users')
   const projects = useCol('projects')
-  const [t, setT] = useState(task || { title: '', desc: '', assigneeId: me.id, due: addDays(7), priority: 'med', status: 'open', projectId: projectId || '' })
+  const [t, setT] = useState(task || { title: '', desc: '', assigneeId: assigneeId || me.id, due: addDays(7), priority: 'med', status: 'open', projectId: projectId || '' })
   const set = (k) => (e) => setT({ ...t, [k]: e.target.value })
   const save = () => {
     if (!t.title.trim()) return toast('חסרה כותרת')
@@ -24,7 +24,7 @@ export function TaskModal({ task, projectId, onClose }) {
       <div className="grid gap-3 sm:grid-cols-2">
         <Field label="כותרת" className="sm:col-span-2"><Input value={t.title} onChange={set('title')} autoFocus /></Field>
         <Field label="תיאור" className="sm:col-span-2"><Textarea value={t.desc || ''} onChange={set('desc')} /></Field>
-        <Field label="אחראי"><Select value={t.assigneeId} onChange={set('assigneeId')} options={users.map((u) => [u.id, u.name])} /></Field>
+        <Field label="אחראי"><Select value={t.assigneeId} onChange={set('assigneeId')} options={users.filter((u) => u.active !== false || u.id === t.assigneeId).map((u) => [u.id, `${u.name} · ${ROLE[u.role]}`])} /></Field>
         <Field label="תאריך יעד"><Input type="date" value={t.due || ''} onChange={set('due')} /></Field>
         <Field label="עדיפות"><Select value={t.priority} onChange={set('priority')} options={PRIO} /></Field>
         <Field label="סטטוס"><Select value={t.status} onChange={set('status')} options={TASK_ST} /></Field>
@@ -103,7 +103,7 @@ export function TaskControl() {
       <table className="w-full text-sm">
         <thead className="bg-slate-50 text-xs text-slate-500"><tr><th className="px-4 py-2 text-start">עובד</th><th className="px-3 py-2">פתוחות</th><th className="px-3 py-2">באיחור</th><th className="px-3 py-2">ממתינות לגורם חיצוני</th><th className="px-3 py-2">בוצעו</th></tr></thead>
         <tbody className="divide-y divide-slate-100">
-          {users.map((u) => {
+          {users.filter((u) => u.active !== false).map((u) => {
             const mine = tasks.filter((t) => t.assigneeId === u.id)
             const late = mine.filter(isLate).length
             return (

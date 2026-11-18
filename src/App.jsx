@@ -1,9 +1,9 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { HashRouter, Routes, Route, NavLink, Outlet, Navigate } from 'react-router-dom'
-import { LayoutDashboard, FolderKanban, CheckSquare, Users, FileStack, Wallet, RotateCcw, Droplets } from 'lucide-react'
-import { useCol, useDbState, resetDemo } from './lib/db'
+import { LayoutDashboard, FolderKanban, CheckSquare, Users, FileStack, Wallet, Droplets, UserCog, ShieldCheck } from 'lucide-react'
+import { useCol, useDbState, useDoc, setActor, createBackup, deleteBackup } from './lib/db'
 import { ROLE } from './lib/util'
-import { MeCtx, useMe, Toaster, toast } from './ui'
+import { MeCtx, useMe, Toaster } from './ui'
 import Dashboard from './pages/Dashboard'
 import Projects from './pages/Projects'
 import Project from './pages/Project'
@@ -12,14 +12,18 @@ import TasksPage from './pages/Tasks'
 import Templates from './pages/Templates'
 import FinancePage from './pages/FinancePage'
 import ChannelPublic from './pages/ChannelPublic'
+import Employees from './pages/Employees'
+import Admin from './pages/Admin'
 
 const NAV = [
   ['/', 'לוח בקרה', LayoutDashboard, ['admin', 'pm', 'inspector']],
   ['/projects', 'פרויקטים', FolderKanban, ['admin', 'pm', 'inspector']],
   ['/tasks', 'משימות', CheckSquare, ['admin', 'pm', 'inspector']],
+  ['/employees', 'עובדים', UserCog, ['admin', 'pm']],
   ['/clients', 'לקוחות', Users, ['admin', 'pm']],
   ['/templates', 'תבניות', FileStack, ['admin', 'pm']],
   ['/finance', 'כספים', Wallet, ['admin']],
+  ['/admin', 'פאנל בקרה', ShieldCheck, ['admin']],
 ]
 
 function Layout() {
@@ -39,7 +43,6 @@ function Layout() {
         <nav className="space-y-1">{nav.map(([to, label, Icon]) => <NavLink key={to} to={to} end={to === '/'} className={link}><Icon size={17} />{label}</NavLink>)}</nav>
         <div className="mt-auto space-y-2 text-[11px] text-slate-400">
           <div className="flex items-center gap-1.5 px-2"><span className={`h-2 w-2 rounded-full ${db.backend === 'firebase' ? 'bg-emerald-400' : 'bg-amber-400'}`} />{db.backend === 'firebase' ? 'מחובר ל-Firestore' : 'נתונים מקומיים בדפדפן'}</div>
-          <button className="flex items-center gap-1.5 rounded px-2 py-1 hover:bg-slate-700" onClick={async () => { if (confirm('לאפס את כל נתוני הדוגמה?')) { await resetDemo(); toast('נתוני הדוגמה אופסו') } }}><RotateCcw size={12} />איפוס נתוני דוגמה</button>
         </div>
       </aside>
       <div className="flex min-w-0 flex-1 flex-col">
@@ -49,7 +52,7 @@ function Layout() {
           <label className="flex items-center gap-2 text-xs text-slate-500">
             <span className="hidden sm:inline">מציג כ:</span>
             <select value={me.id} onChange={(e) => setMeId(e.target.value)} className="rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-sm font-medium text-slate-800">
-              {users.map((u) => <option key={u.id} value={u.id}>{u.name} · {ROLE[u.role]}</option>)}
+              {users.filter((u) => u.active !== false || u.id === me.id).map((u) => <option key={u.id} value={u.id}>{u.name} · {ROLE[u.role]}</option>)}
             </select>
           </label>
         </header>
@@ -68,6 +71,23 @@ export default function App() {
   const [meId, setMeIdRaw] = useState(() => { try { return localStorage.getItem('leder-me') || 'u1' } catch { return 'u1' } })
   const setMeId = (id) => { setMeIdRaw(id); try { localStorage.setItem('leder-me', id) } catch { /* ignore */ } }
   const me = useMemo(() => users.find((u) => u.id === meId) || users[0], [users, meId])
+  const backups = useCol('backups')
+  const settings = useDoc('settings', 'main')
+  useEffect(() => { if (me) setActor(me.name) }, [me])
+  // demo-level automatic backup: runs when the office manager opens the app and the last backup is older than 24h
+  useEffect(() => {
+    if (!db.ready || me?.role !== 'admin' || settings?.autoBackup === false) return
+    const last = backups.length ? Math.max(...backups.map((b) => b.at)) : 0
+    if (Date.now() - last < 864e5) return
+    const t = setTimeout(async () => {
+      try {
+        await createBackup('גיבוי אוטומטי יומי', true)
+        const old = backups.filter((b) => b.auto).sort((a, b) => b.at - a.at).slice((settings?.keep || 7) - 1)
+        for (const b of old) await deleteBackup(b.id)
+      } catch (e) { console.warn('auto backup failed', e) }
+    }, 4000)
+    return () => clearTimeout(t)
+  }, [db.ready, me?.id, backups.length, settings?.autoBackup]) // eslint-disable-line
   if (!db.ready || !me) return <div className="flex h-full items-center justify-center text-slate-500">טוען נתונים…</div>
   return (
     <MeCtx.Provider value={{ me, setMeId }}>
@@ -80,6 +100,8 @@ export default function App() {
             <Route path="/projects/:id" element={<Project />} />
             <Route path="/projects/:id/:tab" element={<Project />} />
             <Route path="/clients" element={<Clients />} />
+            <Route path="/employees" element={me.role === 'inspector' ? <Navigate to="/" /> : <Employees />} />
+            <Route path="/admin" element={me.role === 'admin' ? <Admin /> : <Navigate to="/" />} />
             <Route path="/tasks" element={<TasksPage />} />
             <Route path="/templates" element={<Templates />} />
             <Route path="/finance" element={me.role === 'admin' ? <FinancePage /> : <Navigate to="/" />} />

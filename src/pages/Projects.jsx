@@ -10,7 +10,7 @@ const LINE_TYPES = ['קו מים', 'העתקת קו', 'פיתוח שכונה']
 function NewProject({ onClose }) {
   const nav = useNavigate()
   const clients = useCol('clients')
-  const users = useCol('users')
+  const users = useCol('users').filter((u) => u.active !== false)
   const templates = useCol('templates')
   const [f, setF] = useState({ name: '', clientId: clients[0]?.id || '', mgmt: true, insp: false, type: 'קו מים', geometry: 'line', place: 'באר שבע', length: 900, diameter: '12"', contractor: '', pmId: users.find((u) => u.role === 'pm')?.id || '', inspectorId: '', contract: 100000 })
   const set = (k) => (e) => setF({ ...f, [k]: e.target.type === 'checkbox' ? e.target.checked : e.target.value })
@@ -22,7 +22,7 @@ function NewProject({ onClose }) {
     const loc = PLACES[f.place]
     const len = Number(f.length) || 600
     const base = { name: f.name, clientId: f.clientId, initiator: '', service: [f.mgmt && 'mgmt', f.insp && 'insp'].filter(Boolean), geometry: f.geometry, type: f.type, stage: 'תכנון',
-      pmId: f.pmId, inspectorId: f.insp ? f.inspectorId : '', contractor: f.contractor, designer: '', channelCode: String(Math.floor(1000 + Math.random() * 9000)),
+      pmId: f.pmId, inspectorId: f.insp ? f.inspectorId : '', team: [], contractor: f.contractor, designer: '', channelCode: String(Math.floor(1000 + Math.random() * 9000)),
       startDate: addDays(0), endDate: addDays(180), escort: escortFromTemplate(esc),
       finance: { contract: Number(f.contract) || 0, billing: 'אבני דרך', milestones: [{ name: 'תכנון ואישורים', pct: 30, done: false }, { name: 'ביצוע', pct: 50, done: false }, { name: 'מסירה', pct: 20, done: false }], invoices: [] } }
     let p

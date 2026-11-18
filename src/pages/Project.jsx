@@ -13,7 +13,11 @@ import Finance from './project/Finance'
 import { ChannelTab } from './project/Channel'
 
 function Overview({ p }) {
+  const { me } = useMe()
   const users = useCol('users')
+  const staff = users.filter((u) => u.active !== false)
+  const canEdit = me.role !== 'inspector'
+  const team = p.team || []
   const clients = useCol('clients')
   const tasks = useCol('tasks').filter((t) => t.projectId === p.id)
   const defects = useCol('defects').filter((d) => d.projectId === p.id)
@@ -40,9 +44,24 @@ function Overview({ p }) {
           </dl>
         </Card>
         <Card className="p-4">
-          <h3 className="mb-3 text-sm font-semibold">בעלי תפקידים</h3>
-          <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
-            {[['מנהל פרויקט', name(p.pmId)], ['מפקח', p.inspectorId ? name(p.inspectorId) : ''], ['קבלן', p.contractor], ['מתכנן', p.designer]].filter(([, v]) => v).map(([k, v]) => <div key={k} className="contents"><dt className="text-slate-500">{k}</dt><dd className="font-medium">{v}</dd></div>)}
+          <h3 className="mb-3 text-sm font-semibold">צוות הפרויקט</h3>
+          {canEdit ? (
+            <div className="space-y-2 text-sm">
+              <div className="grid grid-cols-[90px_1fr] items-center gap-2"><span className="text-slate-500">מנהל פרויקט</span><Select value={p.pmId || ''} placeholder="לא שובץ" onChange={(e) => patch('projects', p.id, { pmId: e.target.value })} options={staff.filter((u) => u.role !== 'inspector').map((u) => [u.id, u.name])} /></div>
+              {p.service.includes('insp') && <div className="grid grid-cols-[90px_1fr] items-center gap-2"><span className="text-slate-500">מפקח</span><Select value={p.inspectorId || ''} placeholder="לא שובץ" onChange={(e) => patch('projects', p.id, { inspectorId: e.target.value })} options={staff.map((u) => [u.id, u.name])} /></div>}
+              <div className="grid grid-cols-[90px_1fr] items-start gap-2"><span className="pt-1.5 text-slate-500">חברי צוות</span>
+                <div className="flex flex-wrap items-center gap-1.5">
+                  {team.map((id) => <span key={id} className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-xs">{name(id)}<button onClick={() => patch('projects', p.id, { team: team.filter((x) => x !== id) })} className="text-slate-400 hover:text-rose-600" aria-label="הסר">×</button></span>)}
+                  <div className="w-36"><Select value="" placeholder="+ הוסף עובד" onChange={(e) => e.target.value && patch('projects', p.id, { team: [...team, e.target.value] })} options={staff.filter((u) => !team.includes(u.id) && u.id !== p.pmId && u.id !== p.inspectorId).map((u) => [u.id, u.name])} /></div>
+                </div></div>
+            </div>
+          ) : (
+            <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
+              {[['מנהל פרויקט', name(p.pmId)], ['מפקח', p.inspectorId ? name(p.inspectorId) : ''], ['חברי צוות', team.map(name).join(', ')]].filter(([, v]) => v).map(([k, v]) => <div key={k} className="contents"><dt className="text-slate-500">{k}</dt><dd className="font-medium">{v}</dd></div>)}
+            </dl>
+          )}
+          <dl className="mt-3 grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 border-t border-slate-100 pt-3 text-sm">
+            {[['קבלן', p.contractor], ['מתכנן', p.designer]].filter(([, v]) => v).map(([k, v]) => <div key={k} className="contents"><dt className="text-slate-500">{k}</dt><dd className="font-medium">{v}</dd></div>)}
           </dl>
           <h3 className="mt-5 mb-2 text-sm font-semibold">פעילות אחרונה בערוץ</h3>
           <div className="space-y-2 text-xs">

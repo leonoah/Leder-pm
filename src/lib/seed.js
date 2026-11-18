@@ -6,11 +6,11 @@ const ago = (days, h = 10) => { const d = new Date(); d.setDate(d.getDate() - da
 
 export function buildSeed() {
   const users = [
-    { id: 'u1', name: 'אדם לדר', role: 'admin' },
-    { id: 'u2', name: 'יעל כהן', role: 'pm' },
-    { id: 'u3', name: 'רועי מזרחי', role: 'pm' },
-    { id: 'u4', name: 'דני אברהם', role: 'inspector' },
-    { id: 'u5', name: 'סאמר חטיב', role: 'inspector' },
+    { id: 'u1', name: 'אדם לדר', role: 'admin', title: 'מהנדס, בעל המשרד', phone: '050-0000010', email: 'adam@example.com', active: true },
+    { id: 'u2', name: 'יעל כהן', role: 'pm', title: 'מהנדסת אזרחית', phone: '050-0000011', email: 'yael@example.com', active: true },
+    { id: 'u3', name: 'רועי מזרחי', role: 'pm', title: 'מהנדס מים', phone: '050-0000012', email: 'roi@example.com', active: true },
+    { id: 'u4', name: 'דני אברהם', role: 'inspector', title: 'מפקח צנרת', phone: '050-0000013', email: 'dani@example.com', active: true },
+    { id: 'u5', name: 'סאמר חטיב', role: 'inspector', title: 'הנדסאי בניין, מפקח', phone: '050-0000014', email: 'samer@example.com', active: true },
   ]
   const clients = [
     { id: 'c1', name: 'מקורות', type: 'חברה ממשלתית', notes: 'מרחב דרום – רוב הפרויקטים', contacts: [
