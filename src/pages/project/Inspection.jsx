@@ -86,7 +86,7 @@ function VisitForm({ p, onDone, onCancel }) {
     <div className="space-y-4">
       <Card className="sticky top-0 z-10 flex items-center justify-between gap-3 p-3">
         <div><div className="text-sm font-semibold">סיור פיקוח – {fmtDate(today())}</div><div className="text-xs text-slate-500">{answered} מתוך {base.length} סעיפים נבדקו</div></div>
-        <div className="flex gap-2"><Btn v="outline" onClick={onCancel}>ביטול</Btn><Btn v="ok" onClick={finish}><Check size={16} />סיים והפק דוח</Btn></div>
+        <div className="flex shrink-0 gap-2"><Btn v="outline" onClick={onCancel}>ביטול</Btn><Btn v="ok" className="whitespace-nowrap" onClick={finish}><Check size={16} />סיים<span className="hidden sm:inline"> והפק דוח</span></Btn></div>
       </Card>
       <div className="grid gap-3 sm:grid-cols-2">
         <Field label="נוכחים בסיור"><Input value={attendees} onChange={(e) => setAttendees(e.target.value)} placeholder="מנהל עבודה, מודד…" /></Field>
@@ -125,7 +125,7 @@ function VisitForm({ p, onDone, onCancel }) {
                 {res[i] === 'defect' && d && (
                   <div className="mt-2 space-y-2 rounded-lg bg-rose-50 p-3">
                     <Textarea rows={2} placeholder="תיאור הליקוי" value={d.desc} onChange={(e) => setDef(i, 'desc', e.target.value)} />
-                    <div className="grid grid-cols-3 gap-2">
+                    <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
                       <Select value={d.severity} onChange={(e) => setDef(i, 'severity', e.target.value)} options={Object.entries(SEV).map(([k, l]) => [k, 'חומרה ' + l])} />
                       <Select value={d.loc} onChange={(e) => setDef(i, 'loc', e.target.value)} options={locs} />
                       <Input type="date" value={d.due} onChange={(e) => setDef(i, 'due', e.target.value)} />

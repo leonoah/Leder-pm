@@ -23,7 +23,7 @@ const btn = {
   danger: 'text-rose-700 hover:bg-rose-50', ok: 'bg-emerald-600 text-white hover:bg-emerald-700',
 }
 export const Btn = ({ v = 'primary', sm, className = '', children, ...p }) => (
-  <button type="button" className={`inline-flex items-center justify-center gap-1.5 rounded-lg font-medium transition disabled:opacity-40 ${sm ? 'px-2.5 py-1.5 text-xs' : 'px-3.5 py-2 text-sm'} ${btn[v]} ${className}`} {...p}>{children}</button>
+  <button type="button" className={`inline-flex items-center justify-center gap-1.5 rounded-lg font-medium transition disabled:opacity-40 ${sm ? 'min-h-9 px-3 py-1.5 text-xs sm:min-h-0 sm:px-2.5' : 'min-h-10 px-3.5 py-2 text-sm'} ${btn[v]} ${className}`} {...p}>{children}</button>
 )
 const inputCls = 'w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500'
 export const Field = ({ label, children, className = '' }) => (
@@ -42,20 +42,20 @@ export const Progress = ({ value, tone = 'bg-sky-600', className = '' }) => (
 )
 export const Empty = ({ children }) => <div className="rounded-xl border border-dashed border-slate-300 p-8 text-center text-sm text-slate-500">{children}</div>
 export const Stat = ({ label, value, tone = 'text-slate-900', sub }) => (
-  <Card className="p-4"><div className="text-xs text-slate-500">{label}</div><div className={`mt-1 text-2xl font-bold ${tone}`}>{value}</div>{sub && <div className="mt-0.5 text-xs text-slate-500">{sub}</div>}</Card>
+  <Card className="p-4"><div className="text-xs text-slate-500">{label}</div><div className={`mt-1 text-xl font-bold sm:text-2xl ${tone}`}>{value}</div>{sub && <div className="mt-0.5 text-xs text-slate-500">{sub}</div>}</Card>
 )
 
 export function Modal({ title, onClose, children, wide, footer }) {
   useEffect(() => { const h = (e) => e.key === 'Escape' && onClose(); window.addEventListener('keydown', h); return () => window.removeEventListener('keydown', h) }, [onClose])
   return (
     <div className="fixed inset-0 z-[1000] flex items-end justify-center bg-slate-900/50 sm:items-center sm:p-4" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
-      <div className={`flex max-h-[92vh] w-full flex-col rounded-t-2xl bg-white shadow-xl sm:rounded-2xl ${wide ? 'sm:max-w-3xl' : 'sm:max-w-lg'}`}>
+      <div className={`flex max-h-[92dvh] w-full flex-col rounded-t-2xl bg-white shadow-xl sm:rounded-2xl ${wide ? 'sm:max-w-3xl' : 'sm:max-w-lg'}`}>
         <div className="flex items-center justify-between border-b border-slate-200 px-5 py-3 no-print">
           <h3 className="font-semibold">{title}</h3>
           <button onClick={onClose} className="rounded-lg p-1 text-slate-500 hover:bg-slate-100" aria-label="סגור"><X size={18} /></button>
         </div>
-        <div className="overflow-y-auto p-5">{children}</div>
-        {footer && <div className="flex flex-wrap justify-end gap-2 border-t border-slate-200 px-5 py-3 no-print">{footer}</div>}
+        <div className="overflow-y-auto p-4 sm:p-5">{children}</div>
+        {footer && <div className="flex flex-wrap justify-end gap-2 border-t border-slate-200 px-4 py-3 safe-b no-print sm:px-5">{footer}</div>}
       </div>
     </div>
   )
@@ -93,10 +93,14 @@ export function Toaster() {
   useEffect(() => { pushToast = (m) => { setMsg(m); setTimeout(() => setMsg(null), 2600) } }, [])
   return msg ? <div className="fixed bottom-20 left-1/2 z-[3000] -translate-x-1/2 rounded-full bg-slate-900 px-4 py-2 text-sm text-white shadow-lg md:bottom-6">{msg}</div> : null
 }
-export const Tabs = ({ tabs, value, onChange }) => (
-  <div className="flex gap-1 overflow-x-auto border-b border-slate-200 no-print">
+export const Tabs = ({ tabs, value, onChange }) => {
+  const ref = useRef()
+  useEffect(() => { const box = ref.current; const el = box?.querySelector('[data-on="1"]'); if (el) box.scrollLeft = el.offsetLeft - (box.clientWidth - el.offsetWidth) / 2 }, [value])
+  return (
+  <div ref={ref} className="relative flex max-w-full gap-1 overflow-x-auto border-b border-slate-200 no-print [scrollbar-width:none]">
     {tabs.map(([k, l]) => (
-      <button key={k} onClick={() => onChange(k)} className={`whitespace-nowrap border-b-2 px-3 py-2 text-sm font-medium ${value === k ? 'border-sky-700 text-sky-800' : 'border-transparent text-slate-500 hover:text-slate-800'}`}>{l}</button>
+      <button key={k} data-on={value === k ? 1 : 0} onClick={() => onChange(k)} className={`shrink-0 whitespace-nowrap border-b-2 px-3 py-2.5 text-sm font-medium ${value === k ? 'border-sky-700 text-sky-800' : 'border-transparent text-slate-500 hover:text-slate-800'}`}>{l}</button>
     ))}
   </div>
-)
+  )
+}

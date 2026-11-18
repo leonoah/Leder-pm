@@ -26,9 +26,9 @@ function Chat({ p, viewer }) {
   const msgs = useCol('messages').filter((m) => m.projectId === p.id).sort((a, b) => a.at - b.at)
   const [text, setText] = useState('')
   const [card, setCard] = useState(null)
-  const end = useRef()
+  const box = useRef()
   const fref = useRef()
-  useEffect(() => { end.current?.scrollIntoView({ block: 'end' }) }, [msgs.length])
+  useEffect(() => { if (box.current) box.current.scrollTop = box.current.scrollHeight }, [msgs.length])
   const send = () => { if (!text.trim()) return; postMessage(p.id, viewer, { text: text.trim() }); setText('') }
   const attach = async (e) => {
     const f = e.target.files[0]; e.target.value = ''
@@ -38,8 +38,8 @@ function Chat({ p, viewer }) {
     postMessage(p.id, viewer, { file: { name: f.name, data: await readFile(f) } })
   }
   return (
-    <div className="flex h-[62vh] flex-col rounded-xl border border-slate-200 bg-slate-50">
-      <div className="flex-1 space-y-2 overflow-y-auto p-3">
+    <div className="flex h-[calc(100dvh-250px)] min-h-80 flex-col rounded-xl border border-slate-200 bg-slate-50 md:h-[62vh]">
+      <div ref={box} className="flex-1 space-y-2 overflow-y-auto p-3">
         {msgs.map((m) => {
           const mine = m.by === viewer.name
           const Icon = m.card && ICON[m.card.type]
@@ -57,13 +57,12 @@ function Chat({ p, viewer }) {
           )
         })}
         {!msgs.length && <div className="pt-10 text-center text-sm text-slate-500">אין עדיין הודעות בערוץ</div>}
-        <div ref={end} />
       </div>
       <div className="flex items-center gap-2 border-t border-slate-200 bg-white p-2">
         <input ref={fref} type="file" hidden onChange={attach} />
         <button onClick={() => fref.current.click()} className="rounded-lg p-2 text-slate-500 hover:bg-slate-100" aria-label="צרף קובץ או תמונה"><Paperclip size={20} /></button>
-        <input value={text} onChange={(e) => setText(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && send()} placeholder="כתוב הודעה…" className="flex-1 rounded-full border border-slate-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500" />
-        <button onClick={send} className="rounded-full bg-sky-700 p-2.5 text-white hover:bg-sky-800" aria-label="שלח"><Send size={18} className="-scale-x-100" /></button>
+        <input value={text} onChange={(e) => setText(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && send()} placeholder="כתוב הודעה…" className="min-w-0 flex-1 rounded-full border border-slate-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500" />
+        <button onClick={send} className="shrink-0 rounded-full bg-sky-700 p-2.5 text-white hover:bg-sky-800" aria-label="שלח"><Send size={18} className="-scale-x-100" /></button>
       </div>
       {card && <CardModal card={card} onClose={() => setCard(null)} />}
     </div>
@@ -124,7 +123,7 @@ export function ChannelTab({ p }) {
     <div className="space-y-3">
       <Card className="flex flex-wrap items-center justify-between gap-3 bg-sky-50 p-3 text-sm">
         <div><b>הזמנת לקוח / קבלן לערוץ:</b> שולחים קישור וקוד גישה. נכנסים מהנייד, בלי התקנה ובלי חשבון.
-          <div className="mt-1 text-xs text-slate-600" dir="ltr">{link}</div></div>
+          <div className="mt-1 break-all text-xs text-slate-600" dir="ltr">{link}</div></div>
         <div className="flex items-center gap-2"><span className="rounded-lg bg-white px-3 py-1.5 font-mono text-lg font-bold tracking-widest">{p.channelCode}</span>
           <Btn v="outline" sm onClick={() => { navigator.clipboard?.writeText(`הוזמנת לערוץ הפרויקט "${p.name}":\n${link}\nקוד גישה: ${p.channelCode}`); toast('ההזמנה הועתקה') }}><Copy size={13} />העתק הזמנה</Btn>
           <a href={link} target="_blank" rel="noreferrer"><Btn v="outline" sm><ExternalLink size={13} />פתח כאורח</Btn></a></div>

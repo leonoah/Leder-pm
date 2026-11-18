@@ -52,7 +52,7 @@ export default function Clients() {
     <div className="space-y-4">
       <div className="flex items-center justify-between"><h1 className="text-xl font-bold">לקוחות</h1><Btn onClick={() => setEdit(null)}><Plus size={16} />לקוח חדש</Btn></div>
       <div className="grid gap-4 md:grid-cols-3">
-        <div className="space-y-2">
+        <div className="min-w-0 space-y-2">
           <Input placeholder="חיפוש לקוח" value={q} onChange={(e) => setQ(e.target.value)} />
           {list.map((c) => {
             const ps = projects.filter((p) => p.clientId === c.id)
@@ -66,14 +66,14 @@ export default function Clients() {
             )
           })}
         </div>
-        <div className="md:col-span-2">
+        <div className="min-w-0 md:col-span-2">
           {!cur ? <Empty>אין לקוחות</Empty> : (
             <Card className="p-5">
               <div className="flex items-start justify-between"><div><h2 className="text-lg font-bold">{cur.name}</h2><div className="text-sm text-slate-500">{cur.type}</div></div><Btn v="outline" sm onClick={() => setEdit(cur)}><Pencil size={13} />עריכה</Btn></div>
               {cur.notes && <p className="mt-2 text-sm text-slate-600">{cur.notes}</p>}
               <h3 className="mt-5 mb-2 text-sm font-semibold">אנשי קשר</h3>
               <div className="grid gap-2 sm:grid-cols-2">
-                {(cur.contacts || []).map((ct, i) => <div key={i} className="rounded-lg bg-slate-50 p-3 text-sm"><div className="font-medium">{ct.name}</div><div className="text-xs text-slate-500">{ct.role}</div><div className="mt-1 text-xs text-slate-600" dir="ltr">{ct.phone} · {ct.email}</div></div>)}
+                {(cur.contacts || []).map((ct, i) => <div key={i} className="rounded-lg bg-slate-50 p-3 text-sm"><div className="font-medium">{ct.name}</div><div className="text-xs text-slate-500">{ct.role}</div><div className="mt-1 break-all text-xs text-slate-600" dir="ltr">{ct.phone} · {ct.email}</div></div>)}
               </div>
               <h3 className="mt-5 mb-2 text-sm font-semibold">פרויקטים ({mine.length})</h3>
               <div className="divide-y divide-slate-100 rounded-lg border border-slate-200">

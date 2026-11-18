@@ -50,16 +50,16 @@ export default function Employees() {
     <div className="space-y-4">
       <div className="flex items-center justify-between"><h1 className="text-xl font-bold">עובדים</h1>{admin && <Btn onClick={() => setEdit(null)}><Plus size={16} />עובד חדש</Btn>}</div>
       <div className="grid gap-4 md:grid-cols-3">
-        <div className="space-y-2">
+        <div className="min-w-0 space-y-2">
           {list.map((u) => { const l = load(u); return (
             <Card key={u.id} onClick={() => setSel(u.id)} className={`cursor-pointer p-3 ${cur?.id === u.id ? 'border-sky-500 ring-1 ring-sky-500' : 'hover:border-sky-300'} ${u.active === false ? 'opacity-50' : ''}`}>
               <div className="flex items-center justify-between gap-2"><div className="font-semibold">{u.name}</div><Badge tone={u.role === 'admin' ? 'amber' : u.role === 'pm' ? 'blue' : 'green'}>{ROLE[u.role]}</Badge></div>
               <div className="mt-0.5 text-xs text-slate-500">{u.title || '—'} · {projOf(u).length} פרויקטים{u.active === false ? ' · לא פעיל' : ''}</div>
-              <div className="mt-2 flex items-center gap-2 text-xs"><Progress value={(l.open / max) * 100} tone={l.late ? 'bg-rose-500' : 'bg-sky-600'} /><span className="whitespace-nowrap">{l.open} פתוחות{l.late ? ` · ${l.late} באיחור` : ''}</span></div>
+              <div className="mt-2 flex items-center gap-2 text-xs"><Progress value={(l.open / max) * 100} tone={l.late ? 'bg-rose-500' : 'bg-sky-600'} /><span className="shrink-0 whitespace-nowrap">{l.open} פתוחות{l.late ? ` · ${l.late} באיחור` : ''}</span></div>
             </Card>) })}
           <label className="flex items-center gap-2 px-1 text-xs text-slate-500"><input type="checkbox" checked={showOff} onChange={(e) => setShowOff(e.target.checked)} className="accent-sky-700" />הצג גם עובדים לא פעילים</label>
         </div>
-        <div className="space-y-4 md:col-span-2">
+        <div className="min-w-0 space-y-4 md:col-span-2">
           {!cur ? <Empty>אין עובדים</Empty> : (<>
             <Card className="p-5">
               <div className="flex flex-wrap items-start justify-between gap-2">
