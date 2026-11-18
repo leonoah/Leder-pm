@@ -1,0 +1,93 @@
+import { useMemo, useState } from 'react'
+import { HashRouter, Routes, Route, NavLink, Outlet, Navigate } from 'react-router-dom'
+import { LayoutDashboard, FolderKanban, CheckSquare, Users, FileStack, Wallet, RotateCcw, Droplets } from 'lucide-react'
+import { useCol, useDbState, resetDemo } from './lib/db'
+import { ROLE } from './lib/util'
+import { MeCtx, useMe, Toaster, toast } from './ui'
+import Dashboard from './pages/Dashboard'
+import Projects from './pages/Projects'
+import Project from './pages/Project'
+import Clients from './pages/Clients'
+import TasksPage from './pages/Tasks'
+import Templates from './pages/Templates'
+import FinancePage from './pages/FinancePage'
+import ChannelPublic from './pages/ChannelPublic'
+
+const NAV = [
+  ['/', 'לוח בקרה', LayoutDashboard, ['admin', 'pm', 'inspector']],
+  ['/projects', 'פרויקטים', FolderKanban, ['admin', 'pm', 'inspector']],
+  ['/tasks', 'משימות', CheckSquare, ['admin', 'pm', 'inspector']],
+  ['/clients', 'לקוחות', Users, ['admin', 'pm']],
+  ['/templates', 'תבניות', FileStack, ['admin', 'pm']],
+  ['/finance', 'כספים', Wallet, ['admin']],
+]
+
+function Layout() {
+  const { me, setMeId } = useMe()
+  const users = useCol('users')
+  const db = useDbState()
+  const nav = NAV.filter((n) => n[3].includes(me.role))
+  const link = ({ isActive }) => `flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium ${isActive ? 'bg-sky-700 text-white' : 'text-slate-200 hover:bg-slate-700'}`
+  const mlink = ({ isActive }) => `flex flex-1 flex-col items-center gap-0.5 py-2 text-[11px] ${isActive ? 'text-sky-700 font-semibold' : 'text-slate-500'}`
+  return (
+    <div className="flex h-full">
+      <aside className="hidden w-56 shrink-0 flex-col bg-slate-800 p-3 md:flex no-print">
+        <div className="mb-5 flex items-center gap-2 px-2 pt-2 text-white">
+          <Droplets className="text-sky-400" size={22} />
+          <div><div className="font-bold leading-tight">לדר פרויקטים</div><div className="text-[11px] text-slate-400">ניהול ופיקוח · Demo</div></div>
+        </div>
+        <nav className="space-y-1">{nav.map(([to, label, Icon]) => <NavLink key={to} to={to} end={to === '/'} className={link}><Icon size={17} />{label}</NavLink>)}</nav>
+        <div className="mt-auto space-y-2 text-[11px] text-slate-400">
+          <div className="flex items-center gap-1.5 px-2"><span className={`h-2 w-2 rounded-full ${db.backend === 'firebase' ? 'bg-emerald-400' : 'bg-amber-400'}`} />{db.backend === 'firebase' ? 'מחובר ל-Firestore' : 'נתונים מקומיים בדפדפן'}</div>
+          <button className="flex items-center gap-1.5 rounded px-2 py-1 hover:bg-slate-700" onClick={async () => { if (confirm('לאפס את כל נתוני הדוגמה?')) { await resetDemo(); toast('נתוני הדוגמה אופסו') } }}><RotateCcw size={12} />איפוס נתוני דוגמה</button>
+        </div>
+      </aside>
+      <div className="flex min-w-0 flex-1 flex-col">
+        <header className="flex items-center justify-between gap-3 border-b border-slate-200 bg-white px-4 py-2.5 no-print">
+          <div className="flex items-center gap-2 font-bold md:hidden"><Droplets className="text-sky-600" size={20} />לדר פרויקטים</div>
+          <div className="hidden text-xs text-slate-500 md:block">נתוני הדגמה – שמות הפרויקטים אמיתיים, כל השאר בדוי</div>
+          <label className="flex items-center gap-2 text-xs text-slate-500">
+            <span className="hidden sm:inline">מציג כ:</span>
+            <select value={me.id} onChange={(e) => setMeId(e.target.value)} className="rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-sm font-medium text-slate-800">
+              {users.map((u) => <option key={u.id} value={u.id}>{u.name} · {ROLE[u.role]}</option>)}
+            </select>
+          </label>
+        </header>
+        <main className="flex-1 overflow-y-auto p-4 pb-24 md:p-6 md:pb-6"><div className="mx-auto max-w-6xl"><Outlet /></div></main>
+        <nav className="fixed inset-x-0 bottom-0 z-[900] flex border-t border-slate-200 bg-white md:hidden no-print">
+          {nav.slice(0, 5).map(([to, label, Icon]) => <NavLink key={to} to={to} end={to === '/'} className={mlink}><Icon size={20} />{label}</NavLink>)}
+        </nav>
+      </div>
+    </div>
+  )
+}
+
+export default function App() {
+  const db = useDbState()
+  const users = useCol('users')
+  const [meId, setMeIdRaw] = useState(() => { try { return localStorage.getItem('leder-me') || 'u1' } catch { return 'u1' } })
+  const setMeId = (id) => { setMeIdRaw(id); try { localStorage.setItem('leder-me', id) } catch { /* ignore */ } }
+  const me = useMemo(() => users.find((u) => u.id === meId) || users[0], [users, meId])
+  if (!db.ready || !me) return <div className="flex h-full items-center justify-center text-slate-500">טוען נתונים…</div>
+  return (
+    <MeCtx.Provider value={{ me, setMeId }}>
+      <HashRouter>
+        <Routes>
+          <Route path="/c/:id" element={<ChannelPublic />} />
+          <Route element={<Layout />}>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/projects" element={<Projects />} />
+            <Route path="/projects/:id" element={<Project />} />
+            <Route path="/projects/:id/:tab" element={<Project />} />
+            <Route path="/clients" element={<Clients />} />
+            <Route path="/tasks" element={<TasksPage />} />
+            <Route path="/templates" element={<Templates />} />
+            <Route path="/finance" element={me.role === 'admin' ? <FinancePage /> : <Navigate to="/" />} />
+            <Route path="*" element={<Navigate to="/" />} />
+          </Route>
+        </Routes>
+      </HashRouter>
+      <Toaster />
+    </MeCtx.Provider>
+  )
+}

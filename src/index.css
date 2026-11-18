@@ -1,0 +1,19 @@
+@import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
+
+@theme {
+  --font-sans: "Heebo", "Segoe UI", Arial, sans-serif;
+}
+html, body, #root { height: 100%; }
+body { background: #f1f5f9; color: #0f172a; font-family: var(--font-sans); }
+.leaflet-container { font-family: inherit; z-index: 0; }
+.doc-input { width: 100%; background: transparent; border-radius: 6px; padding: 4px 6px; border: 1px solid transparent; }
+.doc-input:hover { border-color: #e2e8f0; }
+.doc-input:focus { outline: none; border-color: #0ea5e9; background: #fff; }
+
+@media print {
+  body * { visibility: hidden; }
+  .print-area, .print-area * { visibility: visible; }
+  .print-area { position: absolute; inset: 0; padding: 24px; background: #fff; }
+  .no-print { display: none !important; }
+}
